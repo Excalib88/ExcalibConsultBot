@@ -51,8 +51,10 @@ public class UpdateHandler : IUpdateHandler
                 UserId = message.From?.Id
             };
 
-            await _context.Users.AddAsync(user, cancellationToken);
+            var userEntity = await _context.Users.AddAsync(user, cancellationToken);
+            
             await _context.SaveChangesAsync(cancellationToken);
+            user.Id = userEntity.Entity.Id;
         }
         
         await _context.Messages.AddAsync(new MessageEntity
@@ -60,6 +62,7 @@ public class UpdateHandler : IUpdateHandler
             Text = message.Text,
             Type = message.Type,
             MessageId = message.MessageId,
+            UserId = user.Id
         }, cancellationToken);
         
         await _context.SaveChangesAsync(cancellationToken);
