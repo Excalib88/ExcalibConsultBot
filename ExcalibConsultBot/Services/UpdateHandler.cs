@@ -40,8 +40,9 @@ public class UpdateHandler : IUpdateHandler
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
-        var user = _context.Users.FirstOrDefault(x => x.UserId == message.Chat.Id);
-
+        var userId = message.From?.Id ?? message.Chat.Id;
+        var user = _context.Users.FirstOrDefault(x => x.UserId == userId);
+        
         if (user == null)
         {
             user = new UserEntity
