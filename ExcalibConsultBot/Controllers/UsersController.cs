@@ -22,4 +22,11 @@ public class UsersController : ControllerBase
         
         return Ok(users);
     }
+
+    [HttpGet("messages")]
+    public async Task<IActionResult> GetMessages()
+    {
+        var messages = await _context.Messages.ToListAsync();
+        return Ok(messages);
+    }
 }
