@@ -1,8 +1,11 @@
+using ExcalibConsultBot.DAL;
+using ExcalibConsultBot.DAL.Models;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
+using MessageEntity = ExcalibConsultBot.DAL.Models.MessageEntity;
 
 namespace ExcalibConsultBot.Services;
 
@@ -11,13 +14,15 @@ public class UpdateHandler : IUpdateHandler
     private readonly ITelegramBotClient _botClient;
     private readonly ILogger<UpdateHandler> _logger;
     private readonly CurrentState _state;
-    private readonly long _adminUserId; 
+    private readonly long _adminUserId;
+    private readonly ConsultDbContext _context;
 
-    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, IConfiguration configuration)
+    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, IConfiguration configuration, ConsultDbContext context)
     {
         _botClient = botClient;
         _logger = logger;
         _state = state;
+        _context = context;
         _adminUserId = configuration.GetSection("BotConfiguration:AdminUserId").Get<long?>() ?? 409698860;
     }
 
@@ -35,6 +40,30 @@ public class UpdateHandler : IUpdateHandler
     private async Task BotOnMessageReceived(Message message, CancellationToken cancellationToken)
     {
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
+        var user = _context.Users.FirstOrDefault(x => x.UserId == message.Chat.Id);
+
+        if (user == null)
+        {
+            user = new UserEntity
+            {
+                Name = message.From != null ? $"{message.From?.FirstName} {message.From?.LastName}" : $"{message.Chat.FirstName} {message.Chat.LastName}",
+                Username = message.From?.Username ?? message.Chat.Username,
+                UserId = message.From?.Id
+            };
+
+            await _context.Users.AddAsync(user, cancellationToken);
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+        
+        await _context.Messages.AddAsync(new MessageEntity
+        {
+            Text = message.Text,
+            Type = message.Type,
+            MessageId = message.MessageId,
+        }, cancellationToken);
+        
+        await _context.SaveChangesAsync(cancellationToken);
+        
         if (message.Text is not { } messageText)
             return;
 
@@ -54,7 +83,7 @@ public class UpdateHandler : IUpdateHandler
             _state.AddOrUpdate(message.Chat.Id, messageText);
             return;
         }
-            
+        
         const string usage = "Кусь 😽 Меня зовут Дамир или Excalib как тебе удобнее. \n" +
                              "Этот бот поможет нам договориться по поводу личной консультации. \n Я могу помочь как с технической стороны: \n" +
                              "- разобраться с проблемой \n" +

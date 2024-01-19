@@ -1,4 +1,6 @@
+using ExcalibConsultBot.DAL;
 using ExcalibConsultBot.Services;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,6 +20,8 @@ builder.Services.AddScoped<UpdateHandler>();
 builder.Services.AddScoped<ReceiverService>();
 builder.Services.AddSingleton<CurrentState>();
 builder.Services.AddHostedService<PollingService>();
+builder.Services.AddDbContext<ConsultDbContext>(o => 
+    o.UseSqlite(builder.Configuration.GetConnectionString("Db")));
 
 var app = builder.Build();
 
