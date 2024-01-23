@@ -77,7 +77,7 @@ public class UpdateHandler : IUpdateHandler
             {
                 await _botClient.SendTextMessageAsync(
                     chatId: message.Chat.Id,
-                    text: "Спасибо! Я скоро тебе напишу 😽",
+                    text: "Спасибо! Я скоро тебе напишу 😽 Для ознакомления с правилами проведения занятий напишите /rules",
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: cancellationToken);
             }
