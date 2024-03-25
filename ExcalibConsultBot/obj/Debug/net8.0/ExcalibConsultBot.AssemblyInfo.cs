@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ExcalibConsultBot")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+96aea4b66be698569ebde39a0050c42c99d532f0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f24a00117a107a211828b8f162ff33ccc638d09f")]
 [assembly: System.Reflection.AssemblyProductAttribute("ExcalibConsultBot")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ExcalibConsultBot")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

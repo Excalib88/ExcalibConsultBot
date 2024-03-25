@@ -22,6 +22,8 @@ public class SyncController(ConsultDbContext sqlite, ConsultPostgresDbContext co
             
             if (newUser == null)
             {
+                user.CreatedAt = DateTime.UtcNow;
+                
                 await context.Users.AddAsync(user);
             }
         }
@@ -44,6 +46,8 @@ public class SyncController(ConsultDbContext sqlite, ConsultPostgresDbContext co
             
             if (newMessage == null)
             {
+                message.UpdatedAt = DateTime.UtcNow;
+                message.CreatedAt = DateTime.UtcNow;
                 await context.Messages.AddAsync(message);
             }
         }

@@ -16,13 +16,15 @@ public class UpdateHandler : IUpdateHandler
     private readonly CurrentState _state;
     private readonly long _adminUserId;
     private readonly ConsultDbContext _context;
+    private readonly ConsultPostgresDbContext _postgresDbContext; 
 
-    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, IConfiguration configuration, ConsultDbContext context)
+    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, IConfiguration configuration, ConsultDbContext context, ConsultPostgresDbContext postgresDbContext)
     {
         _botClient = botClient;
         _logger = logger;
         _state = state;
         _context = context;
+        _postgresDbContext = postgresDbContext;
         _adminUserId = configuration.GetSection("BotConfiguration:AdminUserId").Get<long?>() ?? 409698860;
     }
 
@@ -75,20 +77,25 @@ public class UpdateHandler : IUpdateHandler
             };
 
             var userEntity = await _context.Users.AddAsync(user, cancellationToken);
+            await _postgresDbContext.Users.AddAsync(user, cancellationToken);
             
             await _context.SaveChangesAsync(cancellationToken);
+            await _postgresDbContext.SaveChangesAsync(cancellationToken);
             user.Id = userEntity.Entity.Id;
         }
-        
-        await _context.Messages.AddAsync(new MessageEntity
+
+        var messageEntity = new MessageEntity
         {
             Text = message.Text,
             Type = message.Type,
             MessageId = message.MessageId,
             UserId = user.Id
-        }, cancellationToken);
+        };
+        await _context.Messages.AddAsync(messageEntity, cancellationToken);
+        await _postgresDbContext.Messages.AddAsync(messageEntity, cancellationToken);
         
         await _context.SaveChangesAsync(cancellationToken);
+        await _postgresDbContext.SaveChangesAsync(cancellationToken);
         
         if (message.Text is not { } messageText)
             return;
