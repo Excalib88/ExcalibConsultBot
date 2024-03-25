@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "r9OlmjXfHzxNfTc2H3QCrRtdTQhWXBDl3PNYPr/bfGN9uQ06ceEEGrF+gwksE2nwe9zBkEy4x96+f6xpanutaA==",
+  "dgSpecHash": "FN2ldaDi1pa/WysHd5Xl/LL055FPG/0PvW7alqWD76x/4ZNHMgp5a927+6wpi9ALHQ2bFG57A+0LSCUtb2eqkA==",
   "success": true,
   "projectFilePath": "C:\\Projects\\ExcalibConsultBot\\ExcalibConsultBot\\ExcalibConsultBot.csproj",
   "expectedPackageFiles": [
@@ -57,6 +57,8 @@
     "C:\\Users\\rave9\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\rave9\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\rave9\\.nuget\\packages\\newtonsoft.json.bson\\1.0.2\\newtonsoft.json.bson.1.0.2.nupkg.sha512",
+    "C:\\Users\\rave9\\.nuget\\packages\\npgsql\\8.0.2\\npgsql.8.0.2.nupkg.sha512",
+    "C:\\Users\\rave9\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.0\\npgsql.entityframeworkcore.postgresql.8.0.0.nupkg.sha512",
     "C:\\Users\\rave9\\.nuget\\packages\\sqlitepclraw.bundle_e_sqlite3\\2.1.6\\sqlitepclraw.bundle_e_sqlite3.2.1.6.nupkg.sha512",
     "C:\\Users\\rave9\\.nuget\\packages\\sqlitepclraw.core\\2.1.6\\sqlitepclraw.core.2.1.6.nupkg.sha512",
     "C:\\Users\\rave9\\.nuget\\packages\\sqlitepclraw.lib.e_sqlite3\\2.1.6\\sqlitepclraw.lib.e_sqlite3.2.1.6.nupkg.sha512",

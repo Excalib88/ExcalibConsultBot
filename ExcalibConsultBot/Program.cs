@@ -20,18 +20,18 @@ builder.Services.AddHttpClient("telegram_bot_client")
 
 builder.Services.AddScoped<UpdateHandler>();
 builder.Services.AddScoped<ReceiverService>();
+builder.Services.AddScoped<TokenValidator>();
 builder.Services.AddSingleton<CurrentState>();
 builder.Services.AddHostedService<PollingService>();
 builder.Services.AddDbContext<ConsultDbContext>(o => 
     o.UseSqlite(builder.Configuration.GetConnectionString("Db")));
+builder.Services.AddDbContext<ConsultPostgresDbContext>(o => 
+    o.UseNpgsql(builder.Configuration.GetConnectionString("PostgreSQL")));
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.MapControllers();
 
