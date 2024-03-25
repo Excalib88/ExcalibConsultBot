@@ -15,15 +15,14 @@ public class UpdateHandler : IUpdateHandler
     private readonly ILogger<UpdateHandler> _logger;
     private readonly CurrentState _state;
     private readonly long _adminUserId;
-    private readonly ConsultDbContext _context;
     private readonly ConsultPostgresDbContext _postgresDbContext; 
 
-    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, IConfiguration configuration, ConsultDbContext context, ConsultPostgresDbContext postgresDbContext)
+    public UpdateHandler(ITelegramBotClient botClient, ILogger<UpdateHandler> logger, CurrentState state, 
+        IConfiguration configuration, ConsultPostgresDbContext postgresDbContext)
     {
         _botClient = botClient;
         _logger = logger;
         _state = state;
-        _context = context;
         _postgresDbContext = postgresDbContext;
         _adminUserId = configuration.GetSection("BotConfiguration:AdminUserId").Get<long?>() ?? 409698860;
     }
@@ -65,7 +64,7 @@ public class UpdateHandler : IUpdateHandler
         
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
         var userId = message.From?.Id ?? message.Chat.Id;
-        var user = _context.Users.FirstOrDefault(x => x.UserId == userId);
+        var user = _postgresDbContext.Users.FirstOrDefault(x => x.UserId == userId);
         
         if (user == null)
         {
@@ -76,10 +75,8 @@ public class UpdateHandler : IUpdateHandler
                 UserId = message.From?.Id
             };
 
-            var userEntity = await _context.Users.AddAsync(user, cancellationToken);
-            await _postgresDbContext.Users.AddAsync(user, cancellationToken);
+            var userEntity = await _postgresDbContext.Users.AddAsync(user, cancellationToken);
             
-            await _context.SaveChangesAsync(cancellationToken);
             await _postgresDbContext.SaveChangesAsync(cancellationToken);
             user.Id = userEntity.Entity.Id;
         }
@@ -91,10 +88,8 @@ public class UpdateHandler : IUpdateHandler
             MessageId = message.MessageId,
             UserId = user.Id
         };
-        await _context.Messages.AddAsync(messageEntity, cancellationToken);
         await _postgresDbContext.Messages.AddAsync(messageEntity, cancellationToken);
         
-        await _context.SaveChangesAsync(cancellationToken);
         await _postgresDbContext.SaveChangesAsync(cancellationToken);
         
         if (message.Text is not { } messageText)
