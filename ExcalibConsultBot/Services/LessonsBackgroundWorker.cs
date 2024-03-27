@@ -23,7 +23,7 @@ public class LessonsBackgroundWorker : BackgroundService
             try
             {
                 var lessons = await context.Lessons
-                    .Where(x => !x.IsFinished && x.LessonDate < DateTime.Now)
+                    .Where(x => !x.IsFinished && x.LessonDate < DateTime.UtcNow)
                     .ToListAsync(cancellationToken: stoppingToken);
 
                 foreach (var lesson in lessons)
