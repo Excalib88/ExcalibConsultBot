@@ -6,4 +6,5 @@ public class LessonEntity : BaseEntity
     public bool IsFinished { get; set; }
     public long? UserId { get; set; }
     public UserEntity? User { get; set; }
+    public int LessonCount { get; set; } = 1;
 }

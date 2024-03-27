@@ -132,10 +132,11 @@ public class UpdateHandler : IUpdateHandler
                 var telegramUserId = long.Parse(lessonFullText[1]);
                 var lessonDate = DateTime.ParseExact(lessonFullText[2], "dd.MM.yyyy/H:mm", CultureInfo.CurrentCulture, DateTimeStyles.None);
                 lessonDate = DateTime.SpecifyKind(lessonDate.ToUniversalTime(), DateTimeKind.Utc);
+                var lessonCount = lessonFullText.Length > 2 ? int.Parse(lessonFullText[3]) : 1;
                 var userEntity = await _postgresDbContext.Users.FirstAsync(x => x.UserId == telegramUserId, cancellationToken: cancellationToken);
                 var balance = await _postgresDbContext.Balances.FirstAsync(x => x.UserId == userEntity.Id, cancellationToken);
 
-                if (balance.BalanceLessonCount == 0)
+                if (balance.BalanceLessonCount < lessonCount)
                 {
                     await _botClient.SendTextMessageAsync(telegramFromUserId, $"Недостаточный баланс {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate:dd-MM-yyyy HH:mm}", cancellationToken:cancellationToken);
                 }
@@ -148,9 +149,9 @@ public class UpdateHandler : IUpdateHandler
                 }, cancellationToken);
                 
                 await _postgresDbContext.SaveChangesAsync(cancellationToken);
-                balance.BalanceLessonCount--;
+                balance.BalanceLessonCount-=lessonCount;
                 await _postgresDbContext.SaveChangesAsync(cancellationToken);
-                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Задание создано для пользователя {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate.ToLocalTime():dd-MM-yyyy HH:mm} по московскому времени", cancellationToken:cancellationToken);
+                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Задание на {lessonCount} ч. создано для пользователя {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate.ToLocalTime():dd-MM-yyyy HH:mm} по московскому времени", cancellationToken:cancellationToken);
                 return;
             }
         }

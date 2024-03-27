@@ -3,17 +3,20 @@ using System;
 using ExcalibConsultBot.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace ExcalibConsultBot.Migrations
+namespace ExcalibConsultBot.Migrations.ConsultPostgresDb
 {
     [DbContext(typeof(ConsultPostgresDbContext))]
-    partial class ConsultPostgresDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240327065215_LessonCounts")]
+    partial class LessonCounts
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
