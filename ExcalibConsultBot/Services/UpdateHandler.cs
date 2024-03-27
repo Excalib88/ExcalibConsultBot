@@ -101,6 +101,14 @@ public class UpdateHandler : IUpdateHandler
         {
             if (message.Text.Contains("/balance"))
             {
+                if (message.Text == "/balance")
+                {
+                    var balance = await _postgresDbContext.Balances.FirstOrDefaultAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
+                    await _botClient.SendTextMessageAsync(telegramFromUserId, $"Ваш баланс: {balance?.BalanceLessonCount ?? 0}", cancellationToken: cancellationToken);
+                    
+                    return;
+                }
+                
                 var balanceFullText = message.Text.Split(" ");
                 var lessons = int.Parse(balanceFullText[1]);
                 var balanceUserId = long.Parse(balanceFullText[2]);
@@ -142,7 +150,7 @@ public class UpdateHandler : IUpdateHandler
                 await _postgresDbContext.SaveChangesAsync(cancellationToken);
                 balance.BalanceLessonCount--;
                 await _postgresDbContext.SaveChangesAsync(cancellationToken);
-                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Задание создано для пользователя {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate:dd-MM-yyyy HH:mm}", cancellationToken:cancellationToken);
+                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Задание создано для пользователя {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate.ToLocalTime():dd-MM-yyyy HH:mm} по московскому времени", cancellationToken:cancellationToken);
                 return;
             }
         }
