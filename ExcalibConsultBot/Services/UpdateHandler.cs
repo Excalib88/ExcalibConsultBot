@@ -1,5 +1,7 @@
+using System.Globalization;
 using ExcalibConsultBot.DAL;
 using ExcalibConsultBot.DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -63,8 +65,8 @@ public class UpdateHandler : IUpdateHandler
                               "10 занятий - 2 650 рублей(без скидки 3550 рублей)";
         
         _logger.LogInformation("Receive message type: {MessageType}", message.Type);
-        var userId = message.From?.Id ?? message.Chat.Id;
-        var user = _postgresDbContext.Users.FirstOrDefault(x => x.UserId == userId);
+        var telegramFromUserId = message.From?.Id ?? message.Chat.Id;
+        var user = _postgresDbContext.Users.FirstOrDefault(x => x.UserId == telegramFromUserId);
         
         if (user == null)
         {
@@ -94,7 +96,56 @@ public class UpdateHandler : IUpdateHandler
         
         if (message.Text is not { } messageText)
             return;
+        
+        if (message.From?.Id == _adminUserId)
+        {
+            if (message.Text.Contains("/balance"))
+            {
+                var balanceFullText = message.Text.Split(" ");
+                var lessons = int.Parse(balanceFullText[1]);
+                var balanceUserId = long.Parse(balanceFullText[2]);
+                var userEntity = await _postgresDbContext.Users.FirstAsync(x => x.UserId == balanceUserId, cancellationToken: cancellationToken);
+                var balanceEntity = new BalanceEntity
+                {
+                    UserId = userEntity.Id,
+                    BalanceLessonCount = lessons
+                };
 
+                await _postgresDbContext.Balances.AddAsync(balanceEntity, cancellationToken);
+                await _postgresDbContext.SaveChangesAsync(cancellationToken);
+
+                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Баланс добавлен пользователю {userEntity.Username} {userEntity.Name} {userEntity.UserId}", cancellationToken:cancellationToken);
+                return;
+            }
+
+            if (message.Text.Contains("/lesson"))
+            {
+                var lessonFullText = message.Text.Split(" ");
+                var telegramUserId = long.Parse(lessonFullText[1]);
+                var lessonDate = DateTime.ParseExact(lessonFullText[2], "dd.MM.yyyy/HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.None);
+                var userEntity = await _postgresDbContext.Users.FirstAsync(x => x.UserId == telegramUserId, cancellationToken: cancellationToken);
+                var balance = await _postgresDbContext.Balances.FirstAsync(x => x.UserId == userEntity.Id, cancellationToken);
+
+                if (balance.BalanceLessonCount == 0)
+                {
+                    await _botClient.SendTextMessageAsync(telegramFromUserId, $"Недостаточный баланс {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate:dd-MM-yyyy HH:mm}", cancellationToken:cancellationToken);
+                }
+                
+                await _postgresDbContext.Lessons.AddAsync(new LessonEntity
+                {
+                    UserId = userEntity.Id,
+                    LessonDate = lessonDate,
+                    IsFinished = false
+                }, cancellationToken);
+                
+                await _postgresDbContext.SaveChangesAsync(cancellationToken);
+                balance.BalanceLessonCount--;
+                await _postgresDbContext.SaveChangesAsync(cancellationToken);
+                await _botClient.SendTextMessageAsync(telegramFromUserId, $"Задание создано для пользователя {userEntity.Username} {userEntity.Name} {userEntity.UserId} на дату {lessonDate:dd-MM-yyyy HH:mm}", cancellationToken:cancellationToken);
+                return;
+            }
+        }
+        
         if (message.Text != "/start")
         {
             if (_state.LastMessages.ContainsKey(message.Chat.Id) && _state.LastMessages[message.Chat.Id] == "/start")
