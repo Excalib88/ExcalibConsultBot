@@ -23,6 +23,7 @@ builder.Services.AddScoped<ReceiverService>();
 builder.Services.AddScoped<TokenValidator>();
 builder.Services.AddSingleton<CurrentState>();
 builder.Services.AddHostedService<PollingService>();
+builder.Services.AddHostedService<LessonsBackgroundWorker>();
 builder.Services.AddDbContext<ConsultDbContext>(o => 
     o.UseSqlite(builder.Configuration.GetConnectionString("Db")));
 builder.Services.AddDbContext<ConsultPostgresDbContext>(o => 

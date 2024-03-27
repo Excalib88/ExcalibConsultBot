@@ -104,7 +104,7 @@ public class UpdateHandler : IUpdateHandler
                 if (message.Text == "/balance")
                 {
                     var balance = await _postgresDbContext.Balances.FirstOrDefaultAsync(x => x.UserId == user.Id, cancellationToken: cancellationToken);
-                    await _botClient.SendTextMessageAsync(telegramFromUserId, $"Ваш баланс: {balance?.BalanceLessonCount ?? 0}", cancellationToken: cancellationToken);
+                    await _botClient.SendTextMessageAsync(telegramFromUserId, $"Ваш баланс: {balance?.BalanceLessonCount ?? 0} ч.", cancellationToken: cancellationToken);
                     
                     return;
                 }
