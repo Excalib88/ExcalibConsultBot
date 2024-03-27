@@ -122,7 +122,7 @@ public class UpdateHandler : IUpdateHandler
             {
                 var lessonFullText = message.Text.Split(" ");
                 var telegramUserId = long.Parse(lessonFullText[1]);
-                var lessonDate = DateTime.ParseExact(lessonFullText[2], "dd.MM.yyyy/HH:mm", CultureInfo.CurrentCulture, DateTimeStyles.None);
+                var lessonDate = DateTime.ParseExact(lessonFullText[2], "dd.MM.yyyy/H:mm", CultureInfo.CurrentCulture, DateTimeStyles.None);
                 var userEntity = await _postgresDbContext.Users.FirstAsync(x => x.UserId == telegramUserId, cancellationToken: cancellationToken);
                 var balance = await _postgresDbContext.Balances.FirstAsync(x => x.UserId == userEntity.Id, cancellationToken);
 
